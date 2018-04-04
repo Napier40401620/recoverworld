@@ -10,7 +10,7 @@ app = Flask(__name__)
 @app.route('/')
 def mainPage():
 	return render_template('index.html',
-		w = w[0:page_size])
+		w = w[0:page_size],page_size=page_size,page_number=0)
 
 @app.route('/begin/<b>')
 def beginPage(b):
@@ -46,6 +46,17 @@ def countryByNamePage(n):
 	return render_template(
 		'country.html',
 		c = c)
+
+@app.route('/delete/<n>')
+def deleteCountry(n):
+    i = 0
+    for c in w:
+       if c['name'] == n:
+                break
+       i = i+1
+    del w[i]
+    return render_template('index.html', page_number=0, page_size=page_size, 
+                           w = w[0:page_size])
 
 app.run(host='0.0.0.0', port=5620, debug=True)
 
