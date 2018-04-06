@@ -1,5 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import json
+
 
 w = json.load(open("worldl.json"))
 for c in w:
@@ -10,7 +11,9 @@ app = Flask(__name__)
 @app.route('/')
 def mainPage():
 	return render_template('index.html',
-		w = w[0:page_size],page_size=page_size,page_number=0)
+		page_number=0,
+		page_size=page_size,
+		w = w[0:page_size])
 
 @app.route('/begin/<b>')
 def beginPage(b):
@@ -48,19 +51,47 @@ def countryByNamePage(n):
 		c = c)
 
 @app.route('/delete/<n>')
-def deleteCountry(n):
-    i = 0
-    for c in w:
-       if c['name'] == n:
-                break
-       i = i+1
-    del w[i]
-    return render_template('index.html', page_number=0, page_size=page_size, 
-                           w = w[0:page_size])
+
+def deleteCountryPage(n):
+	i=0
+	for c in w:
+		if c['name'] == n:
+			break
+
+		i+=1
+
+	del w[i]
+	return render_template('index.html',
+		page_number=0,
+		page_size=page_size,
+		w = w[0:page_size])
+#all deleted country will be back on the list after restarting the server
+
+@app.route('/editcountryByName/<n>')
+def editcountryByNamePage(n):
+	c = None
+	for x in w:
+		if x['name'] == n:
+			c = x
+	return render_template(
+		'country-edit.html',
+		c = c)
+
+@app.route('/updatecountrybyname')
+def updatecountryByNamePage():
+	n=request.args.get('name')
+	c = None
+	for x in w:
+		if x['name'] == n:
+			c = x
+	c['capital']=request.args.get('capital')
+	c['continent']=request.args.get('continent')
+	return render_template(
+		'country.html',
+		c = c)
+
 
 app.run(host='0.0.0.0', port=5620, debug=True)
-
-
 
 
 
